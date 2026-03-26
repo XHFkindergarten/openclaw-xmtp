@@ -54,8 +54,8 @@ The preferred install flow is:
 
 1. install the plugin
 2. check whether the plugin is already active
-3. only restart Gateway if the plugin is not yet active
-4. print the final test URL and usage instructions after all restart decisions are finished
+3. if the plugin is not yet active, tell the user to run `openclaw gateway restart` manually
+4. after that, tell the user exactly how to obtain the XMTP Web test URL and how to ask OpenClaw to send an XMTP message
 
 ## Phase 0: Repository Placement
 
@@ -160,13 +160,21 @@ If all of the following are already true, do not restart Gateway:
 - `status --json` returns `address`
 - `status --json` returns `chatUrl`
 
-If any of those checks fail right after install, then run:
+If any of those checks fail right after install, do not restart Gateway from inside the current installation conversation.
+
+Instead, tell the user to run:
 
 ```bash
 openclaw gateway restart
 ```
 
-After the restart, run the same three verification commands again.
+Then tell the user to run the same three verification commands again:
+
+```bash
+openclaw status
+openclaw channels list
+npx tsx src/cli.ts status --json
+```
 
 Required success state:
 
@@ -214,6 +222,8 @@ Only if those checks are still unhealthy should you run:
 openclaw gateway restart
 ```
 
+Prefer telling the user to run that restart manually after the current installation response ends.
+
 ### If install fails because `openclaw.json` contains stale `openclaw-xmtp` records
 
 Run:
@@ -236,6 +246,8 @@ Only if those checks are still unhealthy should you run:
 ```bash
 openclaw gateway restart
 ```
+
+Prefer telling the user to run that restart manually after the current installation response ends.
 
 ## Phase 4: Optional Validation
 
@@ -267,19 +279,32 @@ Then print:
 - the agent `address`
 - the final `chatUrl`
 - a short statement that wallet and key creation were already completed automatically during `init`
-- a short statement that the OpenClaw-managed plugin path is installed, and no standalone XMTP agent startup is required
+- either:
+  - a short statement that the OpenClaw-managed plugin path is installed, and no standalone XMTP agent startup is required
+  - or a short statement that the plugin install is complete but the user should now run `openclaw gateway restart` manually because restarting inside the current session may interrupt output
 - one direct instruction telling the user to open the `chatUrl` to test chatting with this service
 - one example of how to ask OpenClaw to send an outbound XMTP message to another OpenClaw XMTP service
 
 Important:
 
-- print this final user-facing output only after any required Gateway restart has already finished
-- do not print the final test instructions before a restart that would interrupt the response
+- if the plugin is already active, print the final user-facing output immediately
+- if manual Gateway restart is still needed, print the restart instruction first, then print the exact post-restart commands the user should run to get the final `chatUrl`
+- do not let the current installation conversation end without telling the user both:
+  - how to get the XMTP Web test URL after restart
+  - how to ask OpenClaw to send an XMTP message after restart
 
 Use this output shape:
 
 1. `XMTP Web URL`
-   Print the `chatUrl` and tell the user to open it directly for inbound testing.
+   If `chatUrl` is already available, print it and tell the user to open it directly for inbound testing.
+   If a manual restart is still needed, tell the user:
+
+```text
+重启后运行：
+npx tsx src/cli.ts status --json
+```
+
+   Then explain that the `chatUrl` field in that output is the XMTP Web test URL to open.
 2. `How to send to another XMTP service`
    Tell the user they need:
    - a target XMTP address or inboxId
@@ -292,7 +317,16 @@ Use this output shape:
 你好，我是通过 OpenClaw 的 XMTP 服务发起的测试消息。请告诉我你的专业领域。
 ```
 
-Do not end with CLI usage instructions. The user should be told to talk to OpenClaw, and to open the returned `chatUrl` directly.
+If manual restart is still needed, append this exact guidance before ending:
+
+```text
+如果你刚执行了 openclaw gateway restart，请在重启完成后回到这个仓库目录，运行：
+npx tsx src/cli.ts status --json
+
+然后：
+1. 打开其中的 chatUrl 做 Web 测试
+2. 回到 OpenClaw，对它说上面的示例消息，让它通过 openclaw-xmtp 主动发起聊天
+```
 
 ## Uninstall
 

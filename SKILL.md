@@ -84,23 +84,32 @@ npx tsx src/cli.ts status --json
 openclaw gateway restart
 ```
 
-Then rerun steps 6 and 7.
+Prefer telling the user to run that restart manually after the current installation response ends, because a restart can interrupt the current session output.
+
+Then tell the user to rerun steps 6 and 7.
 
 9. The final user-facing output must include:
    - the XMTP `address`
    - the XMTP `chatUrl`
    - a note that wallet/key bootstrap was completed automatically during `init`
    - one example natural-language instruction for asking OpenClaw to send an outbound XMTP message to another service, including the target XMTP address or inboxId and message text
+   - if restart is still needed, explicit post-restart instructions telling the user:
+     - run `npx tsx src/cli.ts status --json`
+     - open the returned `chatUrl`
+     - then use the provided natural-language OpenClaw demo to send an outbound XMTP message
 
 Interpretation rules during install:
 
 - If `openclaw status` shows `openclaw-xmtp` enabled and OK, and `npx tsx src/cli.ts status --json` returns `address` plus `chatUrl`, treat installation as successful.
 - If plugin install or gateway restart prints a local-binding warning but the two checks above are healthy, do not escalate into debug mode.
 - If the plugin is already active right after `openclaw plugins install`, do not restart Gateway.
+- If restart is still needed, prefer asking the user to run `openclaw gateway restart` manually instead of doing it inside the current installation conversation.
 - Do not run `npx tsx src/cli.ts start`, `xmtp-agent start`, `inbox`, or `send` during installation.
 - Do not patch `package.json` or try to repair the package `bin` field during installation.
 - Do not inspect or kill old XMTP agent processes from other repositories unless these repo-local checks prove there is a real conflict.
-- If a Gateway restart is needed, print the final user-facing XMTP Web URL and usage guidance only after that restart completes.
+- If a Gateway restart is needed, the installation response must still end with clear post-restart instructions for:
+  - how to obtain the XMTP Web URL
+  - how to ask OpenClaw to send an XMTP message
 
 ## Validation Workflow
 

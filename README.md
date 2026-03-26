@@ -46,6 +46,14 @@ npm run test:plugin
 npm run test:live
 ```
 
+If the restart is being triggered from an active OpenClaw installation conversation, prefer telling the user to run the restart manually and then:
+
+```bash
+npx tsx src/cli.ts status --json
+```
+
+The `chatUrl` field from that output is the XMTP Web test URL.
+
 After install, the user-facing output should focus on:
 
 - the `chatUrl` from `npx tsx src/cli.ts status --json`, which they can open directly in XMTP Web
@@ -56,6 +64,7 @@ After install, the user-facing output should focus on:
 Do not tell end users to install `@xmtp/cli`, install `xmtp-cli` skills, or manage raw XMTP CLI commands.
 Do not tell installers to start a standalone XMTP agent or fix the package `bin` path during normal plugin setup.
 If a Gateway restart is needed, print the user-facing XMTP Web URL and usage guidance only after the restart is complete.
+If the restart will interrupt the current conversation, tell the user to run `npx tsx src/cli.ts status --json` after restart, then use the returned `chatUrl` and the OpenClaw outbound demo.
 
 ## Main Commands
 
