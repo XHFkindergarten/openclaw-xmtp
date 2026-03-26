@@ -1,0 +1,9 @@
+node_modules
+.env
+*.db3*
+*.sqlcipher_salt
+data/
+.test-tmp/
+.test-build/
+old_db_backup
+dist

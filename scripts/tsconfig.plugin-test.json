@@ -1,0 +1,20 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "../.test-build"
+  },
+  "include": [
+    "../scripts/test-openclaw-xmtp.ts",
+    "../scripts/test-openclaw-xmtp-monitor.ts",
+    "../src/openclaw/config.ts",
+    "../src/openclaw/channel.ts",
+    "../src/openclaw/inbound.ts",
+    "../src/openclaw/monitor.ts",
+    "../src/openclaw/prompt.ts",
+    "../src/openclaw/runtime.ts",
+    "../src/openclaw/service.ts",
+    "../src/openclaw/state.ts",
+    "../types/openclaw-plugin-sdk.d.ts"
+  ]
+}

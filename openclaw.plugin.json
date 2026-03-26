@@ -1,0 +1,16 @@
+{
+  "id": "openclaw-xmtp",
+  "channels": ["openclaw-xmtp"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "stateDir": {
+        "type": "string"
+      },
+      "env": {
+        "type": "string"
+      }
+    }
+  }
+}

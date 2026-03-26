@@ -1,0 +1,50 @@
+{
+  "name": "openclaw-xmtp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "xmtp-agent": "./node_modules/.bin/tsx src/cli.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx --watch src/agent.ts --debug",
+    "start": "tsx src/agent.ts",
+    "agent": "tsx src/cli.ts",
+    "cli": "tsx src/cli.ts",
+    "preflight": "tsx src/cli.ts preflight --json",
+    "test": "tsx scripts/test-local.ts",
+    "test:debug": "tsx scripts/test-local.ts --debug",
+    "test:plugin": "tsc -p scripts/tsconfig.plugin-test.json && node .test-build/scripts/test-openclaw-xmtp.js && node .test-build/scripts/test-openclaw-xmtp-monitor.js",
+    "test:live": "tsx scripts/test-openclaw-live.ts",
+    "test:single": "tsx scripts/test-single.ts",
+    "typecheck": "tsc"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@xmtp/agent-sdk": "^2.3.0",
+    "dotenv": "^17.3.1",
+    "viem": "^2.38.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "channel": {
+      "id": "openclaw-xmtp",
+      "label": "openclaw-xmtp",
+      "selectionLabel": "openclaw-xmtp (embedded sdk)",
+      "docsPath": "/channels/openclaw-xmtp",
+      "docsLabel": "openclaw-xmtp",
+      "blurb": "Runs XMTP directly inside the OpenClaw channel runtime.",
+      "order": 85
+    }
+  }
+}
