@@ -36,6 +36,8 @@ This creates:
 - `knowledge.md`
 - `data/`
 
+It also auto-generates the XMTP wallet key and DB encryption key, so there is no separate wallet-init step for end users.
+
 These are created in the XMTP base directory, which defaults to:
 
 ```bash
@@ -50,16 +52,32 @@ Replace placeholder content with a real persona and knowledge scope.
 
 ```bash
 openclaw plugins install ~/.openclaw/repos/openclaw-xmtp
-openclaw gateway restart
 ```
 
-Then verify:
+Then verify before restarting:
 
 ```bash
 npx tsx src/cli.ts status --json
 openclaw status
 openclaw channels list
 ```
+
+Only if the plugin is not yet active, run:
+
+```bash
+openclaw gateway restart
+```
+
+Then rerun the same verification commands.
+
+For the final user-facing handoff, prefer:
+
+- the `chatUrl` for direct XMTP Web testing
+- one OpenClaw chat example for sending an outbound XMTP message to another XMTP service
+
+Do not hand users raw XMTP CLI commands.
+Do not switch into standalone-agent debugging during installation if `openclaw status` is OK and `npx tsx src/cli.ts status --json` already returns `address` plus `chatUrl`.
+If a Gateway restart is needed, print the final XMTP Web URL and testing instructions only after the restart has completed.
 
 ## 6. Run Repository Tests
 
@@ -94,13 +112,7 @@ openclaw logs --plain
 
 Look for `openclaw-xmtp` entries with `inbound`, `dispatch`, and `deliver ok`.
 
-## 9. Basic Daily Commands
+## 9. Basic Daily Command
 
 - Check status:
   `npx tsx src/cli.ts status --json`
-- Check inbox:
-  `npx tsx src/cli.ts inbox --json`
-- Stop agent:
-  `npx tsx src/cli.ts stop`
-- Restart agent:
-  `npx tsx src/cli.ts stop && npx tsx src/cli.ts start`

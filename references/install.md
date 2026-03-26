@@ -60,6 +60,15 @@ npm install
 npx tsx src/cli.ts init
 ```
 
+This step already auto-generates:
+
+- the XMTP wallet private key
+- the XMTP DB encryption key
+- `knowledge.md`
+- runtime state directories
+
+Do not ask the user to manually create XMTP wallet/key material after running it.
+
 3. Edit the generated `knowledge.md` in the XMTP base directory.
 
 By default this file is:
@@ -72,12 +81,20 @@ By default this file is:
 
 ```bash
 openclaw plugins install ~/.openclaw/repos/openclaw-xmtp
-openclaw gateway restart
 ```
 
-5. Verify OpenClaw and XMTP identity:
+5. Verify OpenClaw and XMTP identity before restarting:
 
 ```bash
+npx tsx src/cli.ts status --json
+openclaw status
+openclaw channels list
+```
+
+6. Only if the plugin is not yet active, restart Gateway and rerun the same checks:
+
+```bash
+openclaw gateway restart
 npx tsx src/cli.ts status --json
 openclaw status
 openclaw channels list
@@ -89,6 +106,13 @@ Expected result:
 - channel state is `OK`
 - `npx tsx src/cli.ts status --json` reports `configured: true`
 - `npx tsx src/cli.ts status --json` returns `address` and `chatUrl`
+- the final user output includes the `chatUrl` plus one example OpenClaw instruction for sending to another XMTP service using a target address or inboxId and message text
+- `running = false` in `status --json` is acceptable before the first inbound message
+- a local-binding warning during install/restart is acceptable if the checks above are healthy
+
+Do not replace this flow with `@xmtp/cli`, `xmtp-cli` skills, or raw XMTP CLI usage.
+Do not switch to `xmtp-agent start`, `inbox`, `send`, PID hunting, or `package.json` edits during normal installation.
+Do not print final user-facing XMTP test instructions until after any required Gateway restart has finished.
 
 ## Recovery Cases
 
@@ -105,6 +129,19 @@ openclaw plugins uninstall openclaw-xmtp
 rm -rf ~/.openclaw/extensions/openclaw-xmtp
 npx tsx src/cli.ts repair-openclaw-config --json
 openclaw plugins install ~/.openclaw/repos/openclaw-xmtp
+```
+
+Then rerun:
+
+```bash
+npx tsx src/cli.ts status --json
+openclaw status
+openclaw channels list
+```
+
+Only if still unhealthy:
+
+```bash
 openclaw gateway restart
 ```
 
@@ -119,6 +156,19 @@ Recovery:
 ```bash
 npx tsx src/cli.ts repair-openclaw-config --json
 openclaw plugins install ~/.openclaw/repos/openclaw-xmtp
+```
+
+Then rerun:
+
+```bash
+npx tsx src/cli.ts status --json
+openclaw status
+openclaw channels list
+```
+
+Only if still unhealthy:
+
+```bash
 openclaw gateway restart
 ```
 

@@ -238,11 +238,21 @@ async function cmdInit(): Promise<void> {
     }
   }
 
+  const identity = buildChatUrlFromEnvFile();
   console.log("\n🎉 Initialization complete!");
+  if (identity.address) {
+    console.log(`XMTP address: ${identity.address}`);
+  }
+  if (identity.chatUrl) {
+    console.log(`XMTP chat URL: ${identity.chatUrl}`);
+  }
   console.log("Next steps:");
-  console.log("  1. Install the OpenClaw plugin so Gateway can own the XMTP lifecycle");
-  console.log("  2. Run: npx tsx src/cli.ts status --json");
-  console.log("  3. Optional dev-only path: run xmtp-agent start for standalone debugging");
+  console.log("  1. Install this repository as an OpenClaw plugin");
+  console.log("  2. Restart OpenClaw Gateway so it owns the XMTP lifecycle");
+  console.log("  3. Open the XMTP chat URL above and start chatting");
+  console.log("  4. To message another XMTP service from OpenClaw, provide:");
+  console.log("     - target XMTP address or inboxId");
+  console.log("     - the message text to send");
 }
 
 async function cmdPreflight(): Promise<void> {
@@ -314,13 +324,10 @@ async function cmdPreflight(): Promise<void> {
     nextSteps.push("Run: npm install");
   }
   if (!checks.envFile.ok || !checks.knowledgeFile.ok) {
-    nextSteps.push("Run: npx tsx src/cli.ts init");
+    nextSteps.push("Run: npx tsx src/cli.ts init (this auto-generates the XMTP wallet key and encryption key)");
   }
   if (checks.openclaw.ok && checks.envFile.ok) {
     nextSteps.push(`Install the plugin: openclaw plugins install ${PROJECT_ROOT} && openclaw gateway restart`);
-  }
-  if (!checks.agent.running && checks.node.ok && checks.npm.ok && checks.npx.ok) {
-    nextSteps.push("Optional dev-only: npx tsx src/cli.ts start");
   }
   if (!checks.openclaw.ok) {
     nextSteps.push("Install OpenClaw if you want automatic XMTP replies inside OpenClaw");

@@ -10,6 +10,8 @@ version: 1.0.0
 Initialize this repository as an XMTP channel bridge for OpenClaw.
 Treat the OpenClaw plugin as the only supported automatic-reply path.
 Do not use or revive the deprecated raw Gateway WebSocket design.
+Do not install generic XMTP CLI tools or skill packs as part of this workflow.
+Do not switch into standalone-agent debugging during normal installation.
 
 ## Purpose
 
@@ -43,6 +45,7 @@ Interpret the result before taking action.
 - If `npm` or `npx` is missing, stop and ask the user to repair the Node.js installation first.
 - If `node_modules` is missing, run `npm install`.
 - If `.env` or `knowledge.md` is missing, run `npx tsx src/cli.ts init`.
+- `npx tsx src/cli.ts init` already auto-generates the XMTP wallet key and DB encryption key. Do not ask the user to create wallet/key material manually.
 - If `openclaw` is missing and the user wants automatic OpenClaw replies, stop and ask the user to install OpenClaw first.
 
 For detailed install decisions, read `references/install.md`.
@@ -60,10 +63,9 @@ Follow this order:
 
 ```bash
 openclaw plugins install ~/.openclaw/repos/openclaw-xmtp
-openclaw gateway restart
 ```
 
-6. Verify OpenClaw sees the channel:
+6. Verify OpenClaw sees the channel before restarting:
 
 ```bash
 openclaw status
@@ -75,6 +77,30 @@ openclaw channels list
 ```bash
 npx tsx src/cli.ts status --json
 ```
+
+8. Only if the plugin is not yet active after install, run:
+
+```bash
+openclaw gateway restart
+```
+
+Then rerun steps 6 and 7.
+
+9. The final user-facing output must include:
+   - the XMTP `address`
+   - the XMTP `chatUrl`
+   - a note that wallet/key bootstrap was completed automatically during `init`
+   - one example natural-language instruction for asking OpenClaw to send an outbound XMTP message to another service, including the target XMTP address or inboxId and message text
+
+Interpretation rules during install:
+
+- If `openclaw status` shows `openclaw-xmtp` enabled and OK, and `npx tsx src/cli.ts status --json` returns `address` plus `chatUrl`, treat installation as successful.
+- If plugin install or gateway restart prints a local-binding warning but the two checks above are healthy, do not escalate into debug mode.
+- If the plugin is already active right after `openclaw plugins install`, do not restart Gateway.
+- Do not run `npx tsx src/cli.ts start`, `xmtp-agent start`, `inbox`, or `send` during installation.
+- Do not patch `package.json` or try to repair the package `bin` field during installation.
+- Do not inspect or kill old XMTP agent processes from other repositories unless these repo-local checks prove there is a real conflict.
+- If a Gateway restart is needed, print the final user-facing XMTP Web URL and usage guidance only after that restart completes.
 
 ## Validation Workflow
 
@@ -153,4 +179,5 @@ For the complete uninstall checklist, read `references/uninstall.md`.
 - Do not claim installation succeeded until both `openclaw status` and `npx tsx src/cli.ts status --json` are healthy.
 - Treat OpenClaw Gateway as the production process owner for XMTP lifecycle.
 - Do not treat standalone `xmtp-agent start` as part of the required production setup.
+- Do not tell the user to use `xmtp init`, `xmtp conversation send-text`, `xmtp conversations create-group`, or any other raw XMTP CLI command.
 - Do not silently delete user state outside the repository unless the user explicitly asked for full uninstall or cleanup.
