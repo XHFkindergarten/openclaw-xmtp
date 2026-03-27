@@ -26,8 +26,10 @@ OpenClaw must print that exact URL to the user at the end.
 - If a hard prerequisite is missing, stop and explain the blocker instead of guessing.
 - Treat the `chatUrl` from the status endpoint as the only canonical final link to return.
 - Do not install `@xmtp/cli`, do not install any `xmtp-cli` skill pack, and do not tell the user to use raw XMTP CLI commands. This repository already embeds XMTP through `@xmtp/agent-sdk`.
+- XMTP versions are already pinned in this repository to avoid a bad upstream native binding release. Tell users to run plain `npm install` and do not suggest changing XMTP package versions manually.
 - Treat `npx tsx src/cli.ts init` as the required identity bootstrap step. It already generates the local XMTP wallet key and DB encryption key automatically.
 - The production XMTP lifecycle is owned by OpenClaw Gateway after plugin install. Do not ask the user to separately manage an XMTP CLI or standalone agent process.
+- Never run `openclaw gateway restart` from inside the active installation conversation. If a restart is required, stop and tell the user to run it manually in their own terminal.
 - During installation, do not run `npx tsx src/cli.ts start`, `xmtp-agent start`, `npx tsx src/cli.ts inbox`, or `npx tsx src/cli.ts send`. Those are debug-only paths and are not part of normal plugin setup.
 - Do not modify `package.json`, the package `bin` field, or other source files while installing. Installation is a verification task, not a code-fixing task.
 - Do not inspect or kill old XMTP agent processes from other repositories unless this repository's own status checks prove there is a real conflict. Ignore unrelated old repos and stale experiments.
@@ -45,16 +47,17 @@ npx tsx src/cli.ts status --json
 npx tsx src/cli.ts repair-openclaw-config --json
 openclaw plugins install ~/.openclaw/repos/openclaw-xmtp
 openclaw plugins uninstall openclaw-xmtp
-openclaw gateway restart
 openclaw status
 openclaw channels list
 ```
+
+`openclaw gateway restart` is not an allowed command for OpenClaw to execute during the active installation conversation. If a restart is required, OpenClaw must stop and instruct the user to run it manually in their own terminal.
 
 The preferred install flow is:
 
 1. install the plugin
 2. check whether the plugin is already active
-3. if the plugin is not yet active, tell the user to run `openclaw gateway restart` manually
+3. if the plugin is not yet active, tell the user to run `openclaw gateway restart` manually in their own terminal and do not run it for them
 4. after that, tell the user exactly how to obtain the XMTP Web test URL and how to ask OpenClaw to send an XMTP message
 
 ## Phase 0: Repository Placement
@@ -89,7 +92,7 @@ Interpret the result.
 ### Hard blockers
 
 - `node.ok = false`
-  Explain that Node.js 22 or newer must be installed first.
+  Explain that Node.js 22 LTS or 24 LTS must be installed first.
 - `npm.ok = false` or `npx.ok = false`
   Explain that the Node.js installation is incomplete and must be repaired first.
 - `openclaw.ok = false`
@@ -162,7 +165,7 @@ If all of the following are already true, do not restart Gateway:
 
 If any of those checks fail right after install, do not restart Gateway from inside the current installation conversation.
 
-Instead, tell the user to run:
+Instead, tell the user to run this manually in their own terminal:
 
 ```bash
 openclaw gateway restart
@@ -191,6 +194,7 @@ If the checks above are healthy, stop there.
 
 Do not do any of the following during normal installation:
 
+- do not run `openclaw gateway restart` yourself from the active installation conversation
 - do not start a standalone XMTP agent
 - do not inspect PID lists for old `xmtp-agent` processes from other repositories
 - do not patch `package.json`
@@ -216,7 +220,7 @@ openclaw channels list
 npx tsx src/cli.ts status --json
 ```
 
-Only if those checks are still unhealthy should you run:
+Only if those checks are still unhealthy should you tell the user to run manually in their own terminal:
 
 ```bash
 openclaw gateway restart

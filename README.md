@@ -17,9 +17,11 @@ This `init` step already auto-generates the XMTP wallet key and DB encryption ke
 ## Requirements
 
 - macOS or Linux with local filesystem access
-- Node.js 22 or newer
+- Node.js 22 LTS or 24 LTS
 - npm / npx
 - OpenClaw installed if you want automatic replies inside OpenClaw
+
+XMTP dependency versions are intentionally pinned in this repository to avoid a broken upstream native binding release on macOS arm64. Tell users to run plain `npm install` from this repo and do not suggest changing XMTP package versions manually.
 
 ## Quick Start
 
@@ -46,7 +48,7 @@ npm run test:plugin
 npm run test:live
 ```
 
-If the restart is being triggered from an active OpenClaw installation conversation, prefer telling the user to run the restart manually and then:
+If the restart is being triggered from an active OpenClaw installation conversation, do not run `openclaw gateway restart` inside that conversation. The user must run it manually in their own terminal, then run:
 
 ```bash
 npx tsx src/cli.ts status --json
@@ -64,7 +66,7 @@ After install, the user-facing output should focus on:
 Do not tell end users to install `@xmtp/cli`, install `xmtp-cli` skills, or manage raw XMTP CLI commands.
 Do not tell installers to start a standalone XMTP agent or fix the package `bin` path during normal plugin setup.
 If a Gateway restart is needed, print the user-facing XMTP Web URL and usage guidance only after the restart is complete.
-If the restart will interrupt the current conversation, tell the user to run `npx tsx src/cli.ts status --json` after restart, then use the returned `chatUrl` and the OpenClaw outbound demo.
+If the restart would interrupt the current conversation, stop and instruct the user to run `openclaw gateway restart` manually, then `npx tsx src/cli.ts status --json`, then use the returned `chatUrl` and the OpenClaw outbound demo.
 
 ## Main Commands
 

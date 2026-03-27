@@ -145,8 +145,21 @@ function buildChatUrlFromEnvFile(): { address?: string; chatUrl?: string; env?: 
   return {
     address,
     env,
-    chatUrl: `https://xmtp.chat/${env}/dm/${address}`,
+    chatUrl: `https://xmtp.chat/${normalizeChatEnv(env)}/dm/${address}`,
   };
+}
+
+function normalizeChatEnv(env: string): "dev" | "production" | "local" {
+  if (env === "testnet") {
+    return "dev";
+  }
+  if (env === "mainnet") {
+    return "production";
+  }
+  if (env === "production" || env === "local") {
+    return env;
+  }
+  return "dev";
 }
 
 function repairOpenClawPluginConfig(): {

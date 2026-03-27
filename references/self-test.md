@@ -13,7 +13,7 @@ npx tsx src/cli.ts preflight --json
 
 Do not continue until:
 
-- Node.js is `>=22`
+- Node.js is `22 LTS` or `24 LTS`
 - npm and npx are present
 
 If OpenClaw is not installed yet, install OpenClaw before expecting automatic replies.

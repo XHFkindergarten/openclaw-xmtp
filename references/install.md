@@ -2,10 +2,12 @@
 
 ## Supported Setup
 
-- Node.js `>=22`
+- Node.js `22 LTS` or `24 LTS`
 - npm and npx available in `PATH`
 - OpenClaw installed for automatic replies
 - Repository checked out locally at `~/.openclaw/repos/openclaw-xmtp`
+
+XMTP dependency versions are intentionally pinned in this repository to avoid a broken upstream native binding release. Users should run plain `npm install` and should not be told to change XMTP package versions manually.
 
 ## Do This First
 
@@ -19,9 +21,9 @@ npx tsx src/cli.ts preflight --json
 ### If preflight fails
 
 - Node.js missing:
-  Install Node.js 22 or newer, then rerun preflight.
+  Install Node.js 22 LTS or 24 LTS, then rerun preflight.
 - Node.js version too old:
-  Upgrade Node.js, then rerun preflight.
+  Upgrade to Node.js 22 LTS or 24 LTS, then rerun preflight.
 - npm or npx missing:
   Repair the Node.js installation, then rerun preflight.
 - OpenClaw missing:
@@ -91,7 +93,7 @@ openclaw status
 openclaw channels list
 ```
 
-6. Only if the plugin is not yet active, restart Gateway and rerun the same checks:
+6. Only if the plugin is not yet active, tell the user to restart Gateway manually in their own terminal. Do not run it for them. After the user has done that, rerun the same checks:
 
 ```bash
 openclaw gateway restart
@@ -112,6 +114,7 @@ Expected result:
 
 Do not replace this flow with `@xmtp/cli`, `xmtp-cli` skills, or raw XMTP CLI usage.
 Do not switch to `xmtp-agent start`, `inbox`, `send`, PID hunting, or `package.json` edits during normal installation.
+Do not run `openclaw gateway restart` yourself from inside the active installation conversation; the user must run it manually.
 Do not print final user-facing XMTP test instructions until after any required Gateway restart has finished.
 
 ## Recovery Cases
@@ -139,7 +142,7 @@ openclaw status
 openclaw channels list
 ```
 
-Only if still unhealthy:
+Only if still unhealthy, tell the user to run manually in their own terminal:
 
 ```bash
 openclaw gateway restart
@@ -166,7 +169,7 @@ openclaw status
 openclaw channels list
 ```
 
-Only if still unhealthy:
+Only if still unhealthy, tell the user to run manually in their own terminal:
 
 ```bash
 openclaw gateway restart

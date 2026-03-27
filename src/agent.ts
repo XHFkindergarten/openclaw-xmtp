@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { readFileSync, writeFileSync, mkdirSync, existsSync, appendFileSync, unlinkSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
-import { Agent, getTestUrl } from "@xmtp/agent-sdk";
+import { Agent } from "@xmtp/agent-sdk";
 import * as log from "./logger.js";
 
 // ---------------------------------------------------------------------------
@@ -89,8 +89,21 @@ function jsonResponse(res: ServerResponse, status: number, data: unknown): void 
   res.end(JSON.stringify(data));
 }
 
+function normalizeChatEnv(env: string): "dev" | "production" | "local" {
+  if (env === "testnet") {
+    return "dev";
+  }
+  if (env === "mainnet") {
+    return "production";
+  }
+  if (env === "production" || env === "local") {
+    return env;
+  }
+  return "dev";
+}
+
 function getPublicChatUrl(): string {
-  return getTestUrl(agent.client).replace(/^http:\/\//, "https://");
+  return `https://xmtp.chat/${normalizeChatEnv(process.env.XMTP_ENV ?? "dev")}/dm/${agent.address}`;
 }
 
 // ---------------------------------------------------------------------------

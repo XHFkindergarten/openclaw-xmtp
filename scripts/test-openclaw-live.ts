@@ -15,6 +15,8 @@ const ENV_FILE = join(BASE_DIR, ".env");
 
 const senderRoot = mkdtempSync(join(tmpdir(), "openclaw-xmtp-live-"));
 const senderDataDir = join(senderRoot, "data");
+type XMTPEnv = "dev" | "production" | "local" | "testnet" | "mainnet";
+type XMTPAgentEnv = "dev" | "production" | "local";
 
 function randomHex(bytes: number): string {
   return `0x${randomBytes(bytes).toString("hex")}`;
@@ -36,9 +38,19 @@ function parseEnvFile(raw: string): Record<string, string> {
   return result;
 }
 
+function normalizeAgentEnv(env: XMTPEnv): XMTPAgentEnv {
+  if (env === "testnet") {
+    return "dev";
+  }
+  if (env === "mainnet") {
+    return "production";
+  }
+  return env;
+}
+
 function readReceiverIdentity(): {
   receiverAddress: `0x${string}`;
-  env: "dev" | "production" | "local" | "testnet" | "mainnet";
+  env: XMTPEnv;
 } {
   if (!existsSync(ENV_FILE)) {
     throw new Error(`missing ${ENV_FILE}; run 'npx tsx src/cli.ts init' first`);
@@ -46,7 +58,7 @@ function readReceiverIdentity(): {
 
   const parsed = parseEnvFile(readFileSync(ENV_FILE, "utf-8"));
   const walletKey = parsed.XMTP_WALLET_KEY;
-  const env = (parsed.XMTP_ENV ?? "dev") as "dev" | "production" | "local" | "testnet" | "mainnet";
+  const env = (parsed.XMTP_ENV ?? "dev") as XMTPEnv;
 
   if (!walletKey || !/^0x[a-fA-F0-9]{64}$/.test(walletKey)) {
     throw new Error(`invalid XMTP_WALLET_KEY in ${ENV_FILE}`);
@@ -73,7 +85,7 @@ async function main(): Promise<void> {
 
   const { receiverAddress, env } = readReceiverIdentity();
   const sender = await Agent.create(createSigner(createUser(randomHex(32) as `0x${string}`)), {
-    env,
+    env: normalizeAgentEnv(env),
     dbPath: join(senderDataDir, "sender.db3"),
     dbEncryptionKey: randomHex(32) as `0x${string}`,
   });

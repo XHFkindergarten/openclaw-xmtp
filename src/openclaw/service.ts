@@ -1,7 +1,7 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { Agent, createSigner, createUser, getTestUrl } from "@xmtp/agent-sdk";
+import { Agent, createSigner, createUser } from "@xmtp/agent-sdk";
 
 import type { XMTPInboundMessage } from "./inbound.js";
 
@@ -25,6 +25,8 @@ type XMTPSecrets = {
   dbEncryptionKey: `0x${string}`;
   env: string;
 };
+
+type XMTPAgentEnv = "dev" | "production" | "local";
 
 type XMTPService = {
   start: (params: { onMessage: XMTPInboundHandler; abortSignal?: AbortSignal }) => Promise<void>;
@@ -130,9 +132,10 @@ function createXMTPService(
     const signer = createSigner(createUser(secrets.walletKey));
     const dbDir = join(config.stateDir, "db");
     ensureDir(dbDir);
+    const agentEnv = normalizeAgentEnv(secrets.env);
 
     agent = await Agent.create(signer, {
-      env: secrets.env as "dev" | "production" | "local" | "testnet" | "mainnet",
+      env: agentEnv,
       dbPath: (inboxId) => join(dbDir, `xmtp-${secrets.env}-${inboxId}.db3`),
       dbEncryptionKey: secrets.dbEncryptionKey,
     });
@@ -222,7 +225,7 @@ function createXMTPService(
       return {
         running,
         address: agent?.address,
-        chatUrl: agent ? getTestUrl(agent.client).replace(/^http:\/\//, "https://") : undefined,
+        chatUrl: agent?.address ? buildChatUrl(config.env, agent.address) : undefined,
         env: config.env,
         stateDir: config.stateDir,
       };
@@ -252,6 +255,23 @@ function ensureDir(dir: string): void {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
+}
+
+function normalizeAgentEnv(env: string): XMTPAgentEnv {
+  if (env === "testnet") {
+    return "dev";
+  }
+  if (env === "mainnet") {
+    return "production";
+  }
+  if (env === "production" || env === "local") {
+    return env;
+  }
+  return "dev";
+}
+
+function buildChatUrl(env: string, address: string): string {
+  return `https://xmtp.chat/${normalizeAgentEnv(env)}/dm/${address}`;
 }
 
 function loadXMTPSecrets(config: XMTPServiceConfig): XMTPSecrets {
