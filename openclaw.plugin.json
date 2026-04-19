@@ -1,0 +1,10 @@
+{
+  "id": "a2a-xmtp",
+  "version": "0.1.0",
+  "channels": ["a2a-xmtp"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

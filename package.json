@@ -1,0 +1,44 @@
+{
+  "name": "@okx/a2a-xmtp-sdk",
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "postinstall": "sh scripts/patch-xmtp-bindings.sh",
+    "build": "tsc",
+    "dev": "tsx watch src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@xmtp/agent-sdk": "^2.3.0",
+    "@xmtp/node-bindings": "^1.10.0",
+    "@xmtp/node-sdk": "6.0.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "openclaw": "2026.4.12",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "viem": "^2.37.6",
+    "vitest": "^3.2.1"
+  },
+  "openclaw": {
+    "extensions": ["./src/index.ts"],
+    "channel": {
+      "id": "a2a-xmtp",
+      "label": "a2a-xmtp",
+      "selectionLabel": "A2A XMTP",
+      "blurb": "Agent-to-Agent messaging over XMTP",
+      "order": 80
+    },
+    "install": {
+      "defaultChoice": "local",
+      "minHostVersion": ">=2026.3.22"
+    }
+  }
+}

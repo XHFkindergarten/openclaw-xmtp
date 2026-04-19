@@ -1,0 +1,9 @@
+node_modules/
+dist/
+data/
+config/test-wallets.json
+*.db3
+*.db3-shm
+*.db3-wal
+.env
+.context/
